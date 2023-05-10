@@ -9,7 +9,7 @@
 ## usage
 
 ```javascript
-  import SocketClient from 'node-two-pipe'
+  import PipeSocketClient from 'node-two-pipe'
 
   function transformData(data) {
     try {
@@ -28,7 +28,7 @@
   }
 
 
-  const scoketClient = SocketClient.create({
+  const scoketClient = PipeSocketClient.create({
     reConnectInterval: 3e3,
     connectInterval: 2e3,
     heartbeat: {
@@ -43,27 +43,27 @@
   
   scoketClient.on('reconnect', (e) => {
     /** e.type: round | roundIn */
-    console.info('websocket reconnect', e)
+    console.info('socket reconnect', e)
   })
 
   scoketClient.on('open', () => {
-    console.info(`websocket connect success-${scoketClient.option.url}`)
+    console.info(`socket connect success-${scoketClient.option.url}`)
   })
 
   scoketClient.on('error', e => {
-    console.info('websocket connect error', e.message)
+    console.info('socket connect error', e.message)
   })
 
   scoketClient.on('message', e => {
-    console.info('websocket receive', e.data)
+    console.info('socket receive', e.data)
   })
 
   scoketClient.on('close', () => {
-    console.info('websocket connect close')
+    console.info('socket connect close')
   })
 
   scoketClient.on('beforeSend', ({ data }) => {
-    console.info('websocket send message', data)
+    console.info('socket send message', data)
   })
 
   scoketClient.connect(`wsURL`)
