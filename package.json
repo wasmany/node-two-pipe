@@ -1,0 +1,34 @@
+{
+  "name": "node-two-pipe",
+  "version": "0.0.1",
+  "description": "nodejs Emulate websockets using bidirectional pipe communication",
+  "keywords": [
+    "pipe net",
+    "socket"
+  ],
+  "author": "chhhhhh",
+  "license": "MIT",
+  "files": [
+    "dist/*",
+    "types/*"
+  ],
+  "typings": "dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "watch": "unbuild --stub",
+    "build": "unbuild"
+  },
+  "devDependencies": {
+    "@types/node": "^20.1.1",
+    "rollup": "^2.75.7",
+    "typescript": "^4.9.3",
+    "unbuild": "^0.7.4"
+  }
+}
