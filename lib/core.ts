@@ -76,7 +76,8 @@ class PipeSocket extends events {
       this.#heartbeatInstance = new Heartbeat({
         ...option,
         checking: () => {
-          this.#socketSend(option.ping, false)
+          // this.#socketSend(option.ping, false)
+          this.#messageQueue.push(option.ping)
         },
         timeout: () => {
           this.#socket.sender?.destroy()
