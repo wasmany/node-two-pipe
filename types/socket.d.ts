@@ -8,6 +8,8 @@ export interface InitOptions {
   reConnectInterval?: number;
   /** 心跳检测 */
   heartbeat?: boolean | HeartbeatOption;
+  /** write delay */
+  writeDelay?: number
   /** sendTransform */
   transformData: Function;
   /** responseTransform */

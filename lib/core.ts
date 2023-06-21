@@ -40,6 +40,8 @@ class PipeSocket extends events {
   #heartbeatInstance: Heartbeat | null = null
   /** 用户主动断开 */
   #allowReConnect = true
+  #sendTime = Date.now()
+  #sendLoopTimer: NodeJS.Timeout | null = null
   option: Required<InitOptions> & ConnectOptions
   constructor(option: InitOptions & ConnectOptions) {
     super()
@@ -154,16 +156,36 @@ class PipeSocket extends events {
   }
   #socketSetupOnOpen(type: SocketType, socket: Socket) {
     socket?.addListener('ready', () => {
-      if (type === 'sender') {
-        this.#messageQueue.forEach(msg => {
-          this.#socketSend(msg)
-        })
-        this.#messageQueue = []
-      }
       if (this.readyState === PIPE_SOCKET_MAP.open) {
         this.emit('open')
+        this.#startSendLoop()
       }
     })
+  }
+  #startSendLoop() {
+    let now = Date.now()
+    if (now >= (this.#sendTime + 20)) {
+      const message = this.#messageQueue.shift()
+      if (message) {
+        this.#socketSend(message)
+      }
+    }
+    this.#stopSendLoop()
+
+    if (this.readyState === PIPE_SOCKET_MAP.open) {
+      this.#sendLoopTimer = setTimeout(() => {
+        if (this.readyState === PIPE_SOCKET_MAP.open) {
+          this.#stopSendLoop()
+          this.#startSendLoop()
+        }
+      }, 20)
+    }
+  }
+  #stopSendLoop() {
+    if (this.#sendLoopTimer) {
+      clearTimeout(this.#sendLoopTimer)
+      this.#sendLoopTimer = null
+    }
   }
   #socketSetupOnMessage(type: SocketType, socket: Socket) {
     if (type === 'receiver') {
@@ -182,6 +204,7 @@ class PipeSocket extends events {
   #socketSetupOnClose(type: SocketType, socket: Socket) {
     socket?.addListener('close', hasError => {
       this.#heartbeatInstance?.stop()
+      this.#stopSendLoop()
       this.emit('close', { type, hasError })
       if (!this.option.maxReconnectTime || !this.#allowReConnect) {
         return
@@ -215,6 +238,7 @@ class PipeSocket extends events {
       } else {
         this.emit('sendSuccess', { data, target: this.#socket })
       }
+      this.#sendTime = Date.now()
     }
   }
   send(input: any) {
@@ -224,7 +248,7 @@ class PipeSocket extends events {
         this.#messageQueue.push(data)
         return true
       case PIPE_SOCKET_MAP.open:
-        this.#socketSend(data)
+        this.#messageQueue.push(data)
         return true
       case PIPE_SOCKET_MAP.readOnly:
       case PIPE_SOCKET_MAP.writeOnly:

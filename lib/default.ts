@@ -14,6 +14,7 @@ export const defaultHeartbeatOption: Required<HeartbeatOption> = {
 };
 
 export const defaultInitOptions: Required<InitOptions> = {
+  writeDelay: 20,
   connectInterval: 1000,
   reConnectInterval: 1000 * 60,
   maxReconnectTime: 3,
